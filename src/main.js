@@ -53,7 +53,7 @@ window.startRound = function startRound (roundNumber) {
 	currentRoundNumber = roundNumber;
 	
 	let rdataOptions = data.actions.slice();
-	// rdataOptions.push("death");
+	rdataOptions.push("death");
 	rdataOptions = rdataOptions.slice(-16);
 	let options = new Array(16).fill().map((_, i) => rdataOptions[i] || getNeutral());
 	cardActions = shuffleArray(options);
