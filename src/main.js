@@ -47,6 +47,15 @@ function getNeutral () {
 	return possibilities[Math.floor(Math.random() * possibilities.length)];
 }
 
+window.initRound = function initRound (roundNumber) {
+	let message = getOverlay("round" + roundNumber);
+	if (message === null) {
+		message = `<p>Round ${roundNumber}.</p><p>You ready? It's what you signed up for! Good luck.</p><button type="button" onclick="startRound(${roundNumber})">I got this!</button>`;
+	}
+	overlayMessage.innerHTML = message;
+	dom.gameInfo.innerHTML = "";
+};
+
 window.startRound = function startRound (roundNumber) {
 	let data = {};
 	if (roundNumber in roundData) {
@@ -61,19 +70,24 @@ window.startRound = function startRound (roundNumber) {
 	
 	console.trace(`round ${roundNumber} started!`);
 	currentRoundNumber = roundNumber;
+	
 	let rdataOptions = data.actions.slice();
 	rdataOptions.push("death");
 	rdataOptions = rdataOptions.slice(-16);
 	let options = new Array(16).fill().map((_, i) => rdataOptions[i] || getNeutral());
 	cardActions = shuffleArray(options);
-	console.log(cardActions);
+	
 	let labels = shuffleArray(data.labels);
-	selectCount = data.selectCount;
+	dom.cards.classList.remove("roundEnded");
 	document.querySelectorAll("[data-card-id]").forEach((card, i) => {
 		card.textContent = labels[i];
 		card.title = labels[i];
-		card.classList.remove("flipped");
+		card.classList.remove("flipped", "good", "bad", "neutral", "death");
 	});
+	
+	selectCount = data.selectCount;
+	dom.gameInfo.innerHTML = `<p>You have ${selectCount} cards left to pick.</p>`;
+	
 	overlayMessage.innerHTML = "";
 	
 	isRoundActive = true;
@@ -92,11 +106,11 @@ function endRound (reason) {
 	let endedMessage = `<p>${reasons[reason]}Round over. You may not select any more cards.</p>`;
 	
 	if (reason === "none") {
-		endedMessage += `<button type="button" class="btnDanger" onclick="endGame()">End the game here</button><button type="button" class="btnGood" onclick="startRound(${currentRoundNumber + 1})">Proceed to round ${currentRoundNumber + 1}</button>`;
+		endedMessage += `<button type="button" class="btnDanger" onclick="endGame()">End the game here</button><button type="button" class="btnGood" onclick="initRound(${currentRoundNumber + 1})">Proceed to round ${currentRoundNumber + 1}</button>`;
 	} else {
 		endedMessage += `<button type="button" class="btnGood" onclick="endGame()">End the game here</button>`;
 	}
-	dom.roundEnded.innerHTML = endedMessage;
+	dom.gameInfo.innerHTML = endedMessage;
 	// maybe later, implement the ability to pick from two continue options
 }
 
@@ -152,5 +166,6 @@ document.querySelectorAll("[data-card-id]").forEach((card, index) => {
 		doCardAction(action);
 		currentSelectedCount++;
 		if (currentSelectedCount >= selectCount) endRound(); // we now reached maximum selectable, end the round
+		else dom.gameInfo.innerHTML = `<p>You have ${selectCount - currentSelectedCount} cards left to pick.</p>`;
 	});
 });

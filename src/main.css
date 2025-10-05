@@ -113,7 +113,7 @@ h1 {
 	padding: .5rem 2rem;
 }
 
-#roundEnded button {
+#gameInfo button {
 	font-size: large;
 	background-color: #444444;
 	border: none;
@@ -127,16 +127,16 @@ h1 {
 	position: relative;
 }
 
-#roundEnded button:active {
+#gameInfo button:active {
 	box-shadow: inset 0 -0.55rem 0 -0.3rem rgba(0, 0, 0, 0.2);
 	top: 0.1em;
 	outline: none;
 }
 
-#roundEnded button.btnDanger {
+#gameInfo button.btnDanger {
 	background-color: #b33131;
 }
 
-#roundEnded button.btnGood {
+#gameInfo button.btnGood {
 	background-color: #24a224;
 }
