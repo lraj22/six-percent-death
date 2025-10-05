@@ -28,18 +28,12 @@ function shuffleArray(array) {
 	return shuffled;
 }
 
-function getNeutral () {
-	// TODO: add more neutral stuff (font size change, zoom out, visual tilt, unnecessary gradients, literally anything)
-	let possibilities = ["nothing"];
-	return possibilities[Math.floor(Math.random() * possibilities.length)];
-}
-
 window.initRound = function initRound (roundNumber) {
 	let message = getOverlay("round" + roundNumber);
 	if (message === null) {
 		message = `<p>Round ${roundNumber}.</p><p>You ready? It's what you signed up for! Good luck.</p><button type="button" onclick="startRound(${roundNumber})">I got this!</button>`;
 	}
-	overlayMessage.innerHTML = message;
+	dom.overlayMessage.innerHTML = message;
 	dom.gameInfo.innerHTML = "";
 };
 
@@ -59,7 +53,7 @@ window.startRound = function startRound (roundNumber) {
 	currentRoundNumber = roundNumber;
 	
 	let rdataOptions = data.actions.slice();
-	rdataOptions.push("death");
+	// rdataOptions.push("death");
 	rdataOptions = rdataOptions.slice(-16);
 	let options = new Array(16).fill().map((_, i) => rdataOptions[i] || getNeutral());
 	cardActions = shuffleArray(options);
@@ -75,7 +69,7 @@ window.startRound = function startRound (roundNumber) {
 	selectCount = data.selectCount;
 	dom.gameInfo.innerHTML = `<p>You have ${selectCount} ${(selectCount === 1) ? "card" : "cards"} left to pick.</p>`;
 	
-	overlayMessage.innerHTML = "";
+	dom.overlayMessage.innerHTML = "";
 	
 	isRoundActive = true;
 }
@@ -106,6 +100,10 @@ window.endGame = function endGame (reason) {
 	let finalCoins = Math.round(coins);
 	let finalRound = currentRoundNumber;
 	let message;
+	
+	document.body.opacity = 1;
+	document.body.style.transform = "";
+	
 	if (reason === "death") {
 		message = `<p>Despite reaching round ${finalRound} and getting ${finalCoins} ${(finalCoins === 1) ? "coin": "coins"}, you score 0 coins in 0 rounds due to death. Sorry.</p>`;
 	} else if (reason === "notEnoughCoins") {
@@ -114,14 +112,30 @@ window.endGame = function endGame (reason) {
 		message = `<p>You finished Six Percent Death with <b>${finalCoins} ${(finalCoins === 1) ? "coin": "coins"}</b> and passed <b>${finalRound} ${(finalRound === 1) ? "round" : "rounds"}.</b></p>`;
 	}
 	message += `<p>Wanna play again? Possibly do better this time?</p><button type="button" onclick="location.reload()">Absolutely</button>`;
-	overlayMessage.innerHTML = message;
+	dom.overlayMessage.innerHTML = message;
+	dom.gameInfo.innerHTML = "";
 	
 	// TODO: high score?
 };
 
+function getNeutral () {
+	// TODO: add more neutral stuff (font size change, unnecessary gradients, literally anything)
+	let possibilities = ["nothing", "fade", "rotateX", "rotateY", "rotateZ", "skew", "zoomOut"];
+	return possibilities[Math.floor(Math.random() * possibilities.length)];
+}
+
 function getActionDetails (action) {
 	let name = "none";
 	let classification = "none";
+	let neutralActions = {
+		"fade": "Fade [rbr:10,20]%",
+		"rotateX": "Rotate [rbr:10,25] degrees (X)",
+		"rotateY": "Rotate [rbr:5,10] degrees (Y)",
+		"rotateZ": "Rotate 100 degrees (Z)",
+		"skew": "Skew 10 degrees",
+		"zoomOut": "Zoom out [rbr:5,15]%",
+		"nothing": "Literally nothing :P",
+	};
 	
 	if (/^[+-]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
 		name = ((action[0] === "+") ? "Gain" : "Lose") + ` ${action.slice(1)} coins`;
@@ -129,8 +143,10 @@ function getActionDetails (action) {
 	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
 		name = ((action[0] === "x") ? "Multiply" : "Divide") + ` coins by ${action.slice(1)}`;
 		classification = ((action[0] === "x") ? "good" : "bad");
-	} else if (action === "nothing") {
-		name = "Literally nothing :P";
+	} else if (action in neutralActions) {
+		name = neutralActions[action].replace(/\[rbr\:(\d+),(\d+)\]/g, (_, min, max) => {
+			return roundBasedRange(parseFloat(min), parseFloat(max)).toString();
+		});
 		classification = "neutral";
 	} else if (action === "death") {
 		name = "Death.";
@@ -142,6 +158,23 @@ function getActionDetails (action) {
 	return { action, name, classification };
 }
 
+let transforms = {
+	"rotateX": 0,
+	"rotateY": 0,
+	"rotateZ": 0,
+	"skew": 0,
+};
+
+function transformsToString () {
+	return Object.keys(transforms).map(transform => (`${transform}(${transforms[transform]}deg)`)).join(" ");
+}
+document.body.style.transform = transformsToString();
+document.body.style.scale = 1;
+
+function roundBasedRange (min, max) {
+	return Math.round(min + ((max - min) * Math.min(currentRoundNumber / 3, 1)));
+}
+
 function doCardAction (action) {
 	console.log(action);
 	// TODO: add more actions!!
@@ -149,6 +182,26 @@ function doCardAction (action) {
 		setCoins(coins + (parseInt(action.slice(1)) * ((action[0] === "+") ? 1 : -1))); // add/remove coins based on
 	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
 		setCoins(coins * (parseInt(action.slice(1)) ** ((action[0] === "x") ? 1 : -1))); // add/remove coins based on
+	} else if (action === "fade") {
+		document.body.style.opacity = parseFloat(getComputedStyle(document.body).opacity) * (1 - roundBasedRange(0.05, 0.15));
+	} else if (action === "zoomOut") {
+		document.body.style.scale = parseFloat(getComputedStyle(document.body).scale) * 0.9;
+	} else if (action === "rotateX") {
+		transforms.rotateX += roundBasedRange(10, 25);
+		if (Math.floor((transforms.rotateX % 360) / 60) % 3 === 1) transforms.rotateX += 60;
+		document.body.style.transform = transformsToString();
+	} else if (action === "rotateY") {
+		transforms.rotateY += roundBasedRange(5, 10);
+		if (Math.floor((transforms.rotateY % 360) / 60) % 3 === 1) transforms.rotateY += 60;
+		document.body.style.transform = transformsToString();
+	} else if (action === "rotateZ") {
+		transforms.rotateZ += 100;
+		if (Math.floor((transforms.rotateZ % 360) / 60) % 3 === 1) transforms.rotateZ += 60;
+		document.body.style.transform = transformsToString();
+	} else if (action === "skew") {
+		transforms.skew += 5;
+		if (Math.floor((transforms.skew % 360) / 60) % 3 === 1) transforms.skew += 60;
+		document.body.style.transform = transformsToString();
 	} else if (action === "nothing") {
 		// do nothing, lol
 	} else if (action === "death") {
@@ -161,7 +214,7 @@ function doCardAction (action) {
 
 document.querySelectorAll("[data-card-id]").forEach((card, index) => {
 	card.addEventListener("click", _ => {
-		if (overlayMessage.innerHTML) return; // if overlay open, you can't click cards
+		if (dom.overlayMessage.innerHTML) return; // if overlay open, you can't click cards
 		if (card.classList.contains("flipped")) return; // can't flip same card twice
 		let currentSelectedCount = document.querySelectorAll("[data-card-id].flipped").length;
 		if (currentSelectedCount >= selectCount) return; // can't select more than allowable
