@@ -50,9 +50,28 @@ h1 {
 	aspect-ratio: 1 / 1;
 }
 
-.card.flipped {
+.card.flipped.death {
+	background-color: black;
+	color: #dddddd;
+}
+
+.card.flipped.bad {
+	background-color: #b33131;
+	color: #dddddd;
+}
+
+.card.flipped.neutral {
 	background-color: rebeccapurple;
 	color: #dddddd;
+}
+
+.card.flipped.good {
+	background-color: #24a224;
+	color: #dddddd;
+}
+
+.roundEnded .card {
+	cursor: not-allowed;
 }
 
 #overlayMessage {
