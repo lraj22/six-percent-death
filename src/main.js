@@ -119,8 +119,7 @@ window.endGame = function endGame (reason) {
 };
 
 function getNeutral () {
-	// TODO: add more neutral stuff (font size change, unnecessary gradients, literally anything)
-	let possibilities = ["nothing", "fade", "rotateX", "rotateY", "rotateZ", "skew", "zoomOut"];
+	let possibilities = ["nothing", "fade", "rotateX", "rotateY", "rotateZ", "skew", "zoomOut", "gradient"];
 	return possibilities[Math.floor(Math.random() * possibilities.length)];
 }
 
@@ -134,6 +133,7 @@ function getActionDetails (action) {
 		"rotateZ": "Rotate 100 degrees (Z)",
 		"skew": "Skew 10 degrees",
 		"zoomOut": "Zoom out [rbr:5,15]%",
+		"gradient": "Add random gradient color",
 		"nothing": "Literally nothing :P",
 	};
 	
@@ -164,6 +164,7 @@ let transforms = {
 	"rotateZ": 0,
 	"skew": 0,
 };
+let gradient = ["#222222", "#222222"];
 
 function transformsToString () {
 	return Object.keys(transforms).map(transform => (`${transform}(${transforms[transform]}deg)`)).join(" ");
@@ -177,7 +178,6 @@ function roundBasedRange (min, max) {
 
 function doCardAction (action) {
 	console.log(action);
-	// TODO: add more actions!!
 	if (/^[+-]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
 		setCoins(coins + (parseInt(action.slice(1)) * ((action[0] === "+") ? 1 : -1))); // add/remove coins based on
 	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
@@ -202,6 +202,9 @@ function doCardAction (action) {
 		transforms.skew += 5;
 		if (Math.floor((transforms.skew % 360) / 60) % 3 === 1) transforms.skew += 60;
 		document.body.style.transform = transformsToString();
+	} else if (action === "gradient") {
+		gradient.splice(-1, 0, "#" + Math.floor(Math.random() * 16777216).toString(16)); // add random color
+		document.body.style.background = `linear-gradient(${transforms.rotateZ + 90}deg, ${gradient.join(", ")})`;
 	} else if (action === "nothing") {
 		// do nothing, lol
 	} else if (action === "death") {
