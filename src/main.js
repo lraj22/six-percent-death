@@ -29,6 +29,7 @@ function shuffleArray(array) {
 }
 
 function getNeutral () {
+	// TODO: add more neutral stuff (font size change, zoom out, visual tilt, unnecessary gradients, literally anything)
 	let possibilities = ["nothing"];
 	return possibilities[Math.floor(Math.random() * possibilities.length)];
 }
@@ -58,7 +59,7 @@ window.startRound = function startRound (roundNumber) {
 	currentRoundNumber = roundNumber;
 	
 	let rdataOptions = data.actions.slice();
-	// rdataOptions.push("death");
+	rdataOptions.push("death");
 	rdataOptions = rdataOptions.slice(-16);
 	let options = new Array(16).fill().map((_, i) => rdataOptions[i] || getNeutral());
 	cardActions = shuffleArray(options);
@@ -98,10 +99,12 @@ function endRound (reason) {
 	}
 	dom.gameInfo.innerHTML = endedMessage;
 	selectCount = 0;
-	// maybe later, implement the ability to pick from two continue options
+	// TODO: implement the ability to pick from two continue options
 }
 
 window.endGame = function endGame () {
+	// TODO: add game end
+	// TODO: high score?
 	alert("Not implemented yet!");
 };
 
@@ -130,6 +133,7 @@ function getActionDetails (action) {
 
 function doCardAction (action) {
 	console.log(action);
+	// TODO: add more actions!!
 	if (/^[+-]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
 		setCoins(coins + (parseInt(action.slice(1)) * ((action[0] === "+") ? 1 : -1))); // add/remove coins based on
 	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
