@@ -8,16 +8,22 @@ let currentRoundNumber = 0;
 let cardActions = new Array(16).fill("none");
 let selectCount = Infinity;
 let coins = 50;
+let minCoins = 0;
 let isRoundActive = false;
 function setCoins (value) {
-	if (value < 0) {
+	if (value < minCoins) {
 		endRound("notEnoughCoins");
-		value = 0;
+		value = Math.max(value, 0);
 	}
 	coins = value;
 	dom.coins.textContent = Math.round(value);
 }
+function setMinCoins (value) {
+	minCoins = value;
+	dom.minCoins.textContent = value;
+}
 setCoins(50);
+setMinCoins(0);
 
 function shuffleArray(array) {
 	let shuffled = array.slice();
@@ -148,6 +154,9 @@ function getActionDetails (action) {
 			return roundBasedRange(parseFloat(min), parseFloat(max)).toString();
 		});
 		classification = "neutral";
+	} else if (action === "increaseMinCoins") {
+		name = "+10 minimum coin limit";
+		classification = "bad";
 	} else if (action === "death") {
 		name = "Death.";
 		classification = "death";
@@ -179,9 +188,9 @@ function roundBasedRange (min, max) {
 function doCardAction (action) {
 	console.log(action);
 	if (/^[+-]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
-		setCoins(coins + (parseInt(action.slice(1)) * ((action[0] === "+") ? 1 : -1))); // add/remove coins based on
+		setCoins(coins + (parseInt(action.slice(1)) * ((action[0] === "+") ? 1 : -1))); // add/remove coins
 	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
-		setCoins(coins * (parseInt(action.slice(1)) ** ((action[0] === "x") ? 1 : -1))); // add/remove coins based on
+		setCoins(coins * (parseInt(action.slice(1)) ** ((action[0] === "x") ? 1 : -1))); // multiply/divide coins
 	} else if (action === "fade") {
 		document.body.style.opacity = parseFloat(getComputedStyle(document.body).opacity) * (1 - roundBasedRange(0.05, 0.15));
 	} else if (action === "zoomOut") {
@@ -205,6 +214,8 @@ function doCardAction (action) {
 	} else if (action === "gradient") {
 		gradient.splice(-1, 0, "#" + Math.floor(Math.random() * 16777216).toString(16)); // add random color
 		document.body.style.background = `linear-gradient(${transforms.rotateZ + 90}deg, ${gradient.join(", ")})`;
+	} else if (action === "increaseMinCoins") {
+		setMinCoins(minCoins + 10);
 	} else if (action === "nothing") {
 		// do nothing, lol
 	} else if (action === "death") {
@@ -213,6 +224,7 @@ function doCardAction (action) {
 	} else {
 		console.warn(`Could not complete unidentified action: ${action}`);
 	}
+	setCoins(coins);
 }
 
 document.querySelectorAll("[data-card-id]").forEach((card, index) => {
