@@ -15,15 +15,9 @@ function setCoins (value) {
 		value = 0;
 	}
 	coins = value;
-	dom.coins.textContent = value;
+	dom.coins.textContent = Math.round(value);
 }
 setCoins(50);
-
-const actions = {
-	"closeOverlay": function () {
-		overlayMessage.innerHTML = "";
-	},
-};
 
 function shuffleArray(array) {
 	let shuffled = array.slice();
@@ -33,14 +27,6 @@ function shuffleArray(array) {
     }
 	return shuffled;
 }
-
-window.btnAction = function btnAction (actionId) {
-	if (actionId in actions) {
-		actions[actionId]();
-	}
-	let possibleOverlay = getOverlay(actionId);
-	if (possibleOverlay !== null) overlayMessage.innerHTML = possibleOverlay;
-};
 
 function getNeutral () {
 	let possibilities = ["nothing"];
@@ -72,7 +58,7 @@ window.startRound = function startRound (roundNumber) {
 	currentRoundNumber = roundNumber;
 	
 	let rdataOptions = data.actions.slice();
-	rdataOptions.push("death");
+	// rdataOptions.push("death");
 	rdataOptions = rdataOptions.slice(-16);
 	let options = new Array(16).fill().map((_, i) => rdataOptions[i] || getNeutral());
 	cardActions = shuffleArray(options);
@@ -86,7 +72,7 @@ window.startRound = function startRound (roundNumber) {
 	});
 	
 	selectCount = data.selectCount;
-	dom.gameInfo.innerHTML = `<p>You have ${selectCount} cards left to pick.</p>`;
+	dom.gameInfo.innerHTML = `<p>You have ${selectCount} ${(selectCount === 1) ? "card" : "cards"} left to pick.</p>`;
 	
 	overlayMessage.innerHTML = "";
 	
@@ -111,6 +97,7 @@ function endRound (reason) {
 		endedMessage += `<button type="button" class="btnGood" onclick="endGame()">End the game here</button>`;
 	}
 	dom.gameInfo.innerHTML = endedMessage;
+	selectCount = 0;
 	// maybe later, implement the ability to pick from two continue options
 }
 
@@ -123,8 +110,11 @@ function getActionDetails (action) {
 	let classification = "none";
 	
 	if (/^[+-]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
-		name = ((action[0] === "+") ? "Gain" : "Lose") + ` ${action.slice(1)} points`;
+		name = ((action[0] === "+") ? "Gain" : "Lose") + ` ${action.slice(1)} coins`;
 		classification = ((action[0] === "+") ? "good" : "bad");
+	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
+		name = ((action[0] === "x") ? "Multiply" : "Divide") + ` coins by ${action.slice(1)}`;
+		classification = ((action[0] === "x") ? "good" : "bad");
 	} else if (action === "nothing") {
 		name = "Literally nothing :P";
 		classification = "neutral";
@@ -142,6 +132,8 @@ function doCardAction (action) {
 	console.log(action);
 	if (/^[+-]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
 		setCoins(coins + (parseInt(action.slice(1)) * ((action[0] === "+") ? 1 : -1))); // add/remove coins based on
+	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
+		setCoins(coins * (parseInt(action.slice(1)) ** ((action[0] === "x") ? 1 : -1))); // add/remove coins based on
 	} else if (action === "nothing") {
 		// do nothing, lol
 	} else if (action === "death") {
@@ -165,7 +157,8 @@ document.querySelectorAll("[data-card-id]").forEach((card, index) => {
 		card.textContent = name;
 		doCardAction(action);
 		currentSelectedCount++;
+		let cardsLeft = selectCount - currentSelectedCount;
 		if (currentSelectedCount >= selectCount) endRound(); // we now reached maximum selectable, end the round
-		else dom.gameInfo.innerHTML = `<p>You have ${selectCount - currentSelectedCount} cards left to pick.</p>`;
+		else dom.gameInfo.innerHTML = `<p>You have ${cardsLeft} ${(cardsLeft === 1) ? "card" : "cards"} left to pick.</p>`;
 	});
 });
