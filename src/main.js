@@ -164,7 +164,7 @@ let transforms = {
 	"rotateZ": 0,
 	"skew": 0,
 };
-let gradient = ["#222222", "#222222"];
+let gradient = ["#222222", "#222222"]; // default background color
 
 function transformsToString () {
 	return Object.keys(transforms).map(transform => (`${transform}(${transforms[transform]}deg)`)).join(" ");
