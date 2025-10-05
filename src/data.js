@@ -4,7 +4,7 @@
 const overlays = {
 	"round1": `<p>Round 1.</p><p>3 good cards, 3 bad cards, 1 Death. Pick 5 cards.</p><p>By the way, Death will always be one (and only one) of the cards.</p>[Begin|startRound(1)]`,
 	"round2": `<p>Round 2.</p><p>Cards will have random text on them, you can choose whichever ones you like... :]</p><p>Introducing more powerful cards, for example double coins and half coins! 3 good, 3 bad. 1 Death as always. Pick 3.</p>[Begin|startRound(2)]`,
-	"round3": `<p>Round 3.</p><p>Cards can have special powers. There's a card that will make you lose if you drop below 10 coins. Be careful!</p><p>Pick 3.</p>[Begin|startRound(2)]`,
+	"round3": `<p>Round 3.</p><p>Cards can have special powers. There's a card that will make you lose if you drop below 10 coins. Be careful!</p><p>Pick 3.</p>[Begin|startRound(3)]`,
 };
 
 export const roundData = {

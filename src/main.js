@@ -61,7 +61,7 @@ window.startRound = function startRound (roundNumber) {
 	let labels = shuffleArray(data.labels);
 	dom.cards.classList.remove("roundEnded");
 	document.querySelectorAll("[data-card-id]").forEach((card, i) => {
-		card.textContent = labels[i];
+		card.querySelector(".cardFront").textContent = labels[i];
 		card.title = labels[i];
 		card.classList.remove("flipped", "good", "bad", "neutral", "death");
 	});
@@ -216,6 +216,7 @@ function doCardAction (action) {
 }
 
 document.querySelectorAll("[data-card-id]").forEach((card, index) => {
+	card.innerHTML = `<div class="cardInner"><div class="cardFront"></div><div class="cardBack"></div></div>`;
 	card.addEventListener("click", _ => {
 		if (dom.overlayMessage.innerHTML) return; // if overlay open, you can't click cards
 		if (card.classList.contains("flipped")) return; // can't flip same card twice
@@ -223,9 +224,9 @@ document.querySelectorAll("[data-card-id]").forEach((card, index) => {
 		if (currentSelectedCount >= selectCount) return; // can't select more than allowable
 		
 		let { action, name, classification } = getActionDetails(cardActions[index]);
-		card.classList.add("flipped");
 		card.classList.add(classification);
-		card.textContent = name;
+		card.querySelector(".cardBack").textContent = name;
+		card.classList.add("flipped");
 		doCardAction(action);
 		currentSelectedCount++;
 		let cardsLeft = selectCount - currentSelectedCount;
