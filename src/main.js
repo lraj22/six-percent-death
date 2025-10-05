@@ -93,19 +93,30 @@ function endRound (reason) {
 	let endedMessage = `<p>${reasons[reason]}Round over. You may not select any more cards.</p>`;
 	
 	if (reason === "none") {
-		endedMessage += `<button type="button" class="btnDanger" onclick="endGame()">End the game here</button><button type="button" class="btnGood" onclick="initRound(${currentRoundNumber + 1})">Proceed to round ${currentRoundNumber + 1}</button>`;
+		endedMessage += `<button type="button" class="btnDanger" onclick="endGame('none')">End the game here</button><button type="button" class="btnGood" onclick="initRound(${currentRoundNumber + 1})">Proceed to round ${currentRoundNumber + 1}</button>`;
 	} else {
-		endedMessage += `<button type="button" class="btnGood" onclick="endGame()">End the game here</button>`;
+		endedMessage += `<button type="button" class="btnGood" onclick="endGame('${reason}')">End the game here</button>`;
 	}
 	dom.gameInfo.innerHTML = endedMessage;
 	selectCount = 0;
 	// TODO: implement the ability to pick from two continue options
 }
 
-window.endGame = function endGame () {
-	// TODO: add game end
+window.endGame = function endGame (reason) {
+	let finalCoins = Math.round(coins);
+	let finalRound = currentRoundNumber;
+	let message;
+	if (reason === "death") {
+		message = `<p>Despite reaching round ${finalRound} and getting ${finalCoins} ${(finalCoins === 1) ? "coin": "coins"}, you score 0 coins in 0 rounds due to death. Sorry.</p>`;
+	} else if (reason === "notEnoughCoins") {
+		message = `<p>You finished Six Percent Death in round ${finalRound} after running out of coins.</p>`;
+	} else {
+		message = `<p>You finished Six Percent Death with <b>${finalCoins} ${(finalCoins === 1) ? "coin": "coins"}</b> and passed <b>${finalRound} ${(finalRound === 1) ? "round" : "rounds"}.</b></p>`;
+	}
+	message += `<p>Wanna play again? Possibly do better this time?</p><button type="button" onclick="location.reload()">Absolutely</button>`;
+	overlayMessage.innerHTML = message;
+	
 	// TODO: high score?
-	alert("Not implemented yet!");
 };
 
 function getActionDetails (action) {

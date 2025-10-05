@@ -55,6 +55,8 @@ h1 {
 	padding: 1vmin;
 }
 
+/* TODO: add card flip animation */
+
 .card.flipped.death {
 	background-color: black;
 	color: #dddddd;
