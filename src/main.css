@@ -50,13 +50,10 @@ h1 {
 	aspect-ratio: 1 / 1;
 }
 
-.card::after {
-	content: attr(data-card-id);
+.card.flipped {
+	background-color: rebeccapurple;
+	color: #dddddd;
 }
-
-/* #cards:has(.card:hover) .card:not(:hover) {
-	transform: scale(0.95);
-} */
 
 #overlayMessage {
 	position: absolute;
@@ -75,13 +72,17 @@ h1 {
 	box-sizing: border-box;
 }
 
+#overlayMessage:empty {
+	display: none;
+}
+
 button {
 	background-color: rgb(32, 196, 32);
 	padding: .5rem 1.5rem;
 	border: 1px solid rgba(255, 255, 255, 0.525);
 	border-radius: 4px;
 	cursor: pointer;
-	transition: all 0.5s;
+	transition: padding 0.5s;
 }
 
 button:hover {
