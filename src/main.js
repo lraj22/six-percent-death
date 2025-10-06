@@ -152,7 +152,6 @@ window.endGame = function endGame (reason) {
 	if (reason !== "death") {
 		let newHighCoins = Math.max(highScoreCoins, finalCoins)
 		let newHighRound = Math.max(highScoreRound, finalRound);
-		console.log(highScoreCoins, highScoreRound, newHighCoins, newHighRound);
 		if ((highScoreCoins !== newHighCoins) || (highScoreRound !== newHighRound)) {
 			highScoreCoins = newHighCoins;
 			highScoreRound = newHighRound;
@@ -219,10 +218,13 @@ function transformsToString () {
 	return Object.keys(transforms).map(transform => (`${transform}(${transforms[transform]}deg)`)).join(" ");
 }
 document.body.style.transform = transformsToString();
+document.body.style.opacity = 1;
 document.body.style.scale = 1;
 
-function roundBasedRange (min, max) {
-	return Math.round(min + ((max - min) * Math.min(currentRoundNumber / 3, 1)));
+function roundBasedRange (min, max, shouldRound) {
+	let value = min + ((max - min) * Math.min(currentRoundNumber / 3, 1));
+	if (shouldRound === false) return value;
+	else return Math.round(value);
 }
 
 function doCardAction (action) {
@@ -232,7 +234,7 @@ function doCardAction (action) {
 	} else if (/^[x\/]\d+$/.test(action)) { // +1, +10, -1, -10, etc.
 		setCoins(coins * (parseInt(action.slice(1)) ** ((action[0] === "x") ? 1 : -1))); // multiply/divide coins
 	} else if (action === "fade") {
-		document.body.style.opacity = parseFloat(getComputedStyle(document.body).opacity) * (1 - roundBasedRange(0.05, 0.15));
+		document.body.style.opacity = parseFloat(getComputedStyle(document.body).opacity) * (1 - roundBasedRange(0.05, 0.15, false));
 	} else if (action === "zoomOut") {
 		document.body.style.scale = parseFloat(getComputedStyle(document.body).scale) * 0.9;
 	} else if (action === "rotateX") {
