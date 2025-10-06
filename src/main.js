@@ -10,6 +10,7 @@ let selectCount = Infinity;
 let coins = 50;
 let minCoins = 0;
 let isRoundActive = false;
+let constantAdditionalCards = [];
 function setCoins (value) {
 	if (value < minCoins) {
 		endRound("notEnoughCoins");
@@ -43,7 +44,7 @@ window.initRound = function initRound (roundNumber) {
 	dom.gameInfo.innerHTML = "";
 };
 
-window.startRound = function startRound (roundNumber) {
+window.startRound = function startRound (roundNumber, effect) {
 	let data = {};
 	if (roundNumber in roundData) {
 		data = roundData[roundNumber];
@@ -58,7 +59,17 @@ window.startRound = function startRound (roundNumber) {
 	console.trace(`round ${roundNumber} started!`);
 	currentRoundNumber = roundNumber;
 	
+	if (typeof effect === "string") {
+		let effectParts = effect.split(" ");
+		if (effectParts[0] === "add") { // ex. add /2,+1
+			constantAdditionalCards.push(...effect.slice(4).split(",")); // ["/2", "+1"]
+		} else if (effectParts[0] === "do") { // ex. do /3,-10
+			effect.slice(3).split(",").forEach(action => doCardAction(action)); // doCardAction("/3"), doCardAction("-10")
+		}
+	}
+	
 	let rdataOptions = data.actions.slice();
+	rdataOptions.push(...constantAdditionalCards);
 	rdataOptions.push("death");
 	rdataOptions = rdataOptions.slice(-16);
 	let options = new Array(16).fill().map((_, i) => rdataOptions[i] || getNeutral());
