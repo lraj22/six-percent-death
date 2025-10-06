@@ -26,6 +26,24 @@ function setMinCoins (value) {
 setCoins(50);
 setMinCoins(0);
 
+let highScoreCoins = localStorage.getItem("highScoreCoins");
+if (highScoreCoins === null) {
+	localStorage.setItem("highScoreCoins", 0);
+	highScoreCoins = 0;
+}
+let highScoreRound = localStorage.getItem("highScoreRound");
+if (highScoreRound === null) {
+	localStorage.setItem("highScoreRound", 0);
+	highScoreRound = 0;
+}
+highScoreCoins = parseInt(highScoreCoins);
+highScoreRound = parseInt(highScoreRound);
+function updateHighScores () {
+	dom.highScoreCoins.textContent = highScoreCoins + ((highScoreCoins === 1) ? " coin" : " coins");
+	dom.highScoreRound.textContent = highScoreRound + ((highScoreRound === 1) ? " round" : " rounds");
+}
+updateHighScores();
+
 function shuffleArray(array) {
 	let shuffled = array.slice();
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -110,7 +128,6 @@ function endRound (reason) {
 	}
 	dom.gameInfo.innerHTML = endedMessage;
 	selectCount = 0;
-	// TODO: implement the ability to pick from two continue options
 }
 
 window.endGame = function endGame (reason) {
@@ -132,7 +149,19 @@ window.endGame = function endGame (reason) {
 	dom.overlayMessage.innerHTML = message;
 	dom.gameInfo.innerHTML = "";
 	
-	// TODO: high score?
+	if (reason !== "death") {
+		let newHighCoins = Math.max(highScoreCoins, finalCoins)
+		let newHighRound = Math.max(highScoreRound, finalRound);
+		console.log(highScoreCoins, highScoreRound, newHighCoins, newHighRound);
+		if ((highScoreCoins !== newHighCoins) || (highScoreRound !== newHighRound)) {
+			highScoreCoins = newHighCoins;
+			highScoreRound = newHighRound;
+			localStorage.setItem("highScoreCoins", highScoreCoins);
+			localStorage.setItem("highScoreRound", highScoreRound);
+			updateHighScores();
+			dom.newHighScore.style.display = "inline";
+		}
+	}
 };
 
 function getNeutral () {

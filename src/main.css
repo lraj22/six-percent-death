@@ -177,3 +177,7 @@ h1 {
 #gameInfo button.btnGood {
 	background-color: #24a224;
 }
+
+#newHighScore {
+	display: none;
+}
